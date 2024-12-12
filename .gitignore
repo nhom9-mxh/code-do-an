@@ -1,6 +1,7 @@
-samples/*
-checkpoints/*
+data/processed/*
+data/raw/relations/*
+data/raw/entities/*
+src/graph-modeling/checkpoints/*
 db
-entities/*
-relations/*
 attention-to-context.pdf
+course_labeled_eda.ipynb

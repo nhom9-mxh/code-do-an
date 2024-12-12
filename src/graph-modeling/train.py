@@ -66,7 +66,6 @@ def get_args():
         help="Number of gradient accumulation over batches",
         dest="grad_accum",
     )
-    parser.add_argument("--resume", default="none", help="Resume checkpointed model")
     return parser.parse_args()
 
 
@@ -77,7 +76,9 @@ def evaluate(model: nn.Module, dataset: GraphDataset, device: torch.device):
     conf_mat = MulticlassConfusionMatrix(num_classes=3).to(device)
 
     model.eval().to(device)
-    for i, sample in tqdm(enumerate(dataset), total=len(dataset)):
+    for i, sample in tqdm(
+        enumerate(dataset), desc="Evaluation round", total=len(dataset), leave=True
+    ):
         input = sample["data"].to(device)
         label = sample["label"].unsqueeze(0).to(device)
 
@@ -114,7 +115,9 @@ def evaluate(model: nn.Module, dataset: GraphDataset, device: torch.device):
 if __name__ == "__main__":
     args = get_args()
 
-    dataset = GraphDataset("/home/ptdat/Desktop/graph/samples")
+    dataset = GraphDataset(
+        "/home/ptdat/Desktop/graph/data/processed", 
+        label_csv="/home/ptdat/Desktop/graph/data/course_labeled.csv")
     labels = [sample["label"] for sample in dataset]
     n_samples = len(dataset)
 
@@ -126,7 +129,7 @@ if __name__ == "__main__":
     n_train = len(train_set)
     n_val = len(val_set)
 
-    model = HeteroGNN(hidden_channels=64, out_channels=3, num_layers=4)
+    model = HeteroGNN(hidden_channels=128, out_channels=3, num_layers=6)
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -139,7 +142,7 @@ if __name__ == "__main__":
             desc=f"Epoch {epoch}/{args.epochs}",
             unit="course",
         ) as pbar:
-            for i, sample in enumerate(dataset):
+            for i, sample in enumerate(train_set):
                 input = sample["data"].to(device)
                 label = sample["label"].unsqueeze(0).to(device)
 

@@ -9,9 +9,9 @@ import joblib
 class GraphDataset(Dataset):
     LABEL2IDX = {"bad": 0, "normal": 1, "good": 2}
 
-    def __init__(self, data_dir):
+    def __init__(self, data_dir: str, label_csv: str):
         self.samples = glob(f"{data_dir}/*.pkl")
-        self.df = read_csv("/home/ptdat/Desktop/graph/course_labeled.csv")
+        self.df = read_csv(label_csv)
         self.df["average_completion_rate"].fillna(0.6550275845610755)
 
     def __len__(self):
